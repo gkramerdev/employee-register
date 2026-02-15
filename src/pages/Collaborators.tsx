@@ -1,37 +1,48 @@
 import { Box, Button, TextField, Typography } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import { db } from "../firebaseConfig";
 import CollaboratorsTable from "../components/CollaboratorsTable";
 
-const MOCK_DATA = [
-  {
-    id: 1,
-    name: "Fernanda Torres",
-    email: "fernanda@flugo.com",
-    department: "Design",
-    status: "active" as const,
-  },
-  {
-    id: 2,
-    name: "Carlos Silva",
-    email: "carlos@flugo.com",
-    department: "TI",
-    status: "inactive" as const,
-  },
-  {
-    id: 3,
-    name: "Marina Souza",
-    email: "marina@flugo.com",
-    department: "Marketing",
-    status: "active" as const,
-  },
-];
+interface Collaborator {
+  id: string;
+  name: string;
+  email: string;
+  department: string;
+  status: "active" | "inactive";
+  createdAt?: any;
+}
 
 export default function Collaborators() {
-  const [search, setSearch] = useState("");
+  const navigate = useNavigate();
 
-  const filteredData = MOCK_DATA.filter((collaborator) =>
-    collaborator.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  const [search, setSearch] = useState("");
+  const [data, setData] = useState<Collaborator[]>([]);
+
+  useEffect(() => {
+    const q = query(
+      collection(db, "collaborators"),
+      orderBy("createdAt", "desc"),
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const collaborators = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...(doc.data() as Omit<Collaborator, "id">),
+      }));
+
+      setData(collaborators);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const filteredData = useMemo(() => {
+    return data.filter((collaborator) =>
+      collaborator.name.toLowerCase().includes(search.toLowerCase()),
+    );
+  }, [data, search]);
 
   return (
     <Box>
@@ -47,7 +58,11 @@ export default function Collaborators() {
           Colaboradores
         </Typography>
 
-        <Button variant="contained" color="success">
+        <Button
+          variant="contained"
+          color="success"
+          onClick={() => navigate("/collaborators/new")}
+        >
           Novo Colaborador
         </Button>
       </Box>
@@ -61,6 +76,7 @@ export default function Collaborators() {
         onChange={(e) => setSearch(e.target.value)}
       />
 
+      {/* Tabela */}
       <CollaboratorsTable data={filteredData} />
     </Box>
   );

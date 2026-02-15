@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import PageLayout from "../src/layout/PageLayout";
 import { ProtectedRoute } from "./auth/ProtectedRoute";
 import Collaborators from "./pages/Collaborators";
+import NewCollaborator from "./pages/NewCollaborator";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route element={<PageLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/collaborators" element={<Collaborators />} />
+          <Route path="/collaborators/new" element={<NewCollaborator />} />
         </Route>
       </Route>
 
