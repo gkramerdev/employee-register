@@ -1,54 +1,70 @@
 import {
   Box,
   Button,
+  CircularProgress,
   LinearProgress,
   Typography,
   Snackbar,
   Alert,
 } from "@mui/material";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import CollaboratorStepper from "../components/collaborator/CollaboratorStepper";
 import StepBasicInfo from "../components/collaborator/StepBasicInfo";
 import StepProfessionalInfo from "../components/collaborator/StepProfessionalInfo";
-import { createCollaborator } from "../services/collaboratorService";
-import { CircularProgress } from "@mui/material";
+import {
+  getCollaboratorById,
+  updateCollaborator,
+} from "../services/collaboratorService";
+import type { CollaboratorForm } from "./NewCollaborator";
 import { useSnackbar } from "../hooks/useSnackbar";
-
-export interface CollaboratorForm {
-  name: string;
-  email: string;
-  department: string;
-  status: "active" | "inactive";
-}
 
 const TOTAL_STEPS = 2;
 
-export default function NewCollaborator() {
+export default function EditCollaborator() {
+  const { id } = useParams();
   const navigate = useNavigate();
 
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [formData, setFormData] = useState<CollaboratorForm | null>(null);
+
   const { open, message, severity, showSnackbar, handleClose } = useSnackbar();
 
-  const [formData, setFormData] = useState<CollaboratorForm>({
-    name: "",
-    email: "",
-    department: "",
-    status: "active",
-  });
+  useEffect(() => {
+    async function loadCollaborator() {
+      if (!id) return;
 
-  const handleChange = <K extends keyof CollaboratorForm>(
+      const data = await getCollaboratorById(id);
+
+      if (!data) {
+        navigate("/collaborators");
+        return;
+      }
+
+      setFormData(data as CollaboratorForm);
+      setInitialLoading(false);
+    }
+
+    loadCollaborator();
+  }, [id, navigate]);
+
+  function handleChange<K extends keyof CollaboratorForm>(
     field: K,
     value: CollaboratorForm[K],
-  ) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  ) {
+    if (!formData) return;
 
-  const isStepValid = () => {
+    setFormData({
+      ...formData,
+      [field]: value,
+    });
+  }
+
+  function isStepValid() {
+    if (!formData) return false;
+
     if (activeStep === 0) {
       const isValidEmail = /\S+@\S+\.\S+/.test(formData.email);
       return formData.name.trim() !== "" && isValidEmail;
@@ -59,46 +75,54 @@ export default function NewCollaborator() {
     }
 
     return false;
-  };
+  }
 
-  const handleNext = () => {
+  function handleNext() {
     if (!isStepValid()) return;
     setActiveStep((prev) => prev + 1);
-  };
+  }
 
-  const handleBack = () => {
+  function handleBack() {
     setActiveStep((prev) => prev - 1);
-  };
+  }
 
-  const handleSubmit = async () => {
-    if (!isStepValid() || loading) return;
+  async function handleSave() {
+    if (!id || !formData || loading) return;
 
     setLoading(true);
 
-    const result = await createCollaborator(formData);
+    const result = await updateCollaborator(id, formData);
 
     if (!result.success) {
       setLoading(false);
-      showSnackbar("Erro ao criar colaborador.", "error");
+      showSnackbar("Erro ao atualizar colaborador.", "error"); // 👈
       return;
     }
 
     navigate("/collaborators", {
       state: {
         snackbar: {
-          message: "Colaborador criado com sucesso!",
+          message: "Colaborador atualizado com sucesso!",
           severity: "success",
         },
       },
     });
-  };
+  }
 
   const progress = ((activeStep + 1) / TOTAL_STEPS) * 100;
+
+  if (initialLoading || !formData) {
+    return (
+      <Box display="flex" justifyContent="center" mt={5}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box>
       <Typography variant="h5" fontWeight={600} mb={2}>
-        Cadastrar Colaborador
+        Editar Colaborador
       </Typography>
 
       <LinearProgress variant="determinate" value={progress} sx={{ mb: 4 }} />
@@ -130,33 +154,33 @@ export default function NewCollaborator() {
               variant="contained"
               color="success"
               disabled={!isStepValid() || loading}
-              startIcon={
-                loading ? <CircularProgress size={18} color="inherit" /> : null
-              }
-              onClick={
-                activeStep === TOTAL_STEPS - 1 ? handleSubmit : handleNext
-              }
+              onClick={activeStep === TOTAL_STEPS - 1 ? handleSave : handleNext}
             >
-              {activeStep === TOTAL_STEPS - 1 ? "Salvar" : "Próximo"}
+              {loading
+                ? "Salvando..."
+                : activeStep === TOTAL_STEPS - 1
+                  ? "Salvar"
+                  : "Próximo"}
             </Button>
           </Box>
         </Box>
-        <Snackbar
-          open={open}
-          autoHideDuration={1500}
-          onClose={handleClose}
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        >
-          <Alert
-            onClose={handleClose}
-            severity={severity}
-            variant="filled"
-            sx={{ width: "100%" }}
-          >
-            {message}
-          </Alert>
-        </Snackbar>
       </Box>
+
+      <Snackbar
+        open={open}
+        autoHideDuration={1500}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert
+          onClose={handleClose}
+          severity={severity}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

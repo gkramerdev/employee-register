@@ -10,11 +10,13 @@ import {
   TableContainer,
   Paper,
   TablePagination,
+  Button,
+  TableSortLabel,
 } from "@mui/material";
 import { useState } from "react";
 
 interface Collaborator {
-  id: number;
+  id: string;
   name: string;
   email: string;
   department: string;
@@ -23,11 +25,22 @@ interface Collaborator {
 
 interface Props {
   data: Collaborator[];
+  onEdit: (id: string) => void;
+  onDeactivate: (id: string) => void;
 }
 
-export default function CollaboratorsTable({ data }: Props) {
+type Order = "asc" | "desc";
+
+export default function CollaboratorsTable({
+  data,
+  onEdit,
+  onDeactivate,
+}: Props) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  const [order, setOrder] = useState<Order>("asc");
+  const [orderBy, setOrderBy] = useState<keyof Collaborator>("name");
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
@@ -40,7 +53,22 @@ export default function CollaboratorsTable({ data }: Props) {
     setPage(0);
   };
 
-  const paginatedData = data.slice(
+  function handleSort(property: keyof Collaborator) {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+  }
+
+  const sortedData = [...data].sort((a, b) => {
+    const valueA = a[orderBy];
+    const valueB = b[orderBy];
+
+    if (valueA < valueB) return order === "asc" ? -1 : 1;
+    if (valueA > valueB) return order === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  const paginatedData = sortedData.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage,
   );
@@ -51,10 +79,40 @@ export default function CollaboratorsTable({ data }: Props) {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Nome</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Departamento</TableCell>
+              <TableCell sortDirection={orderBy === "name" ? order : false}>
+                <TableSortLabel
+                  active={orderBy === "name"}
+                  direction={orderBy === "name" ? order : "asc"}
+                  onClick={() => handleSort("name")}
+                >
+                  Nome
+                </TableSortLabel>
+              </TableCell>
+
+              <TableCell sortDirection={orderBy === "email" ? order : false}>
+                <TableSortLabel
+                  active={orderBy === "email"}
+                  direction={orderBy === "email" ? order : "asc"}
+                  onClick={() => handleSort("email")}
+                >
+                  Email
+                </TableSortLabel>
+              </TableCell>
+
+              <TableCell
+                sortDirection={orderBy === "department" ? order : false}
+              >
+                <TableSortLabel
+                  active={orderBy === "department"}
+                  direction={orderBy === "department" ? order : "asc"}
+                  onClick={() => handleSort("department")}
+                >
+                  Departamento
+                </TableSortLabel>
+              </TableCell>
+
               <TableCell>Status</TableCell>
+              <TableCell>Ações</TableCell>
             </TableRow>
           </TableHead>
 
@@ -69,7 +127,6 @@ export default function CollaboratorsTable({ data }: Props) {
                 </TableCell>
 
                 <TableCell>{row.email}</TableCell>
-
                 <TableCell>{row.department}</TableCell>
 
                 <TableCell>
@@ -78,6 +135,20 @@ export default function CollaboratorsTable({ data }: Props) {
                     color={row.status === "active" ? "success" : "default"}
                     size="small"
                   />
+                </TableCell>
+
+                <TableCell>
+                  <Button size="small" onClick={() => onEdit(row.id)}>
+                    Editar
+                  </Button>
+                  <Button
+                    size="small"
+                    color="error"
+                    disabled={row.status === "inactive"}
+                    onClick={() => onDeactivate(row.id)}
+                  >
+                    Inativar
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
