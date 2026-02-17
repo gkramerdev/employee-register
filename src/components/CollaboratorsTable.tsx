@@ -190,7 +190,6 @@ export default function CollaboratorsTable({
         </Table>
       </TableContainer>
 
-      {/* PAGINAÇÃO MODERNA */}
       <Box
         sx={{
           display: "flex",

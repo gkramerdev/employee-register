@@ -8,6 +8,14 @@ interface Props {
     value: CollaboratorForm[K],
   ) => void;
 }
+const DEPARTMENTS = [
+  "TI",
+  "Design",
+  "Marketing",
+  "Produto",
+  "Vendas",
+  "Recursos Humanos",
+];
 
 export default function StepProfessionalInfo({ data, onChange }: Props) {
   return (
@@ -24,9 +32,11 @@ export default function StepProfessionalInfo({ data, onChange }: Props) {
           onChange={(e) => onChange("department", e.target.value)}
           required
         >
-          <MenuItem value="TI">TI</MenuItem>
-          <MenuItem value="Design">Design</MenuItem>
-          <MenuItem value="Marketing">Marketing</MenuItem>
+          {DEPARTMENTS.map((dept) => (
+            <MenuItem key={dept} value={dept}>
+              {dept}
+            </MenuItem>
+          ))}
         </TextField>
       </Box>
     </Box>

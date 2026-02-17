@@ -19,7 +19,6 @@ import { CircularProgress } from "@mui/material";
 import { useSnackbar } from "../hooks/useSnackbar";
 
 export interface CollaboratorForm {
-  id: string;
   name: string;
   email: string;
   department: string;
@@ -36,7 +35,6 @@ export default function NewCollaborator() {
   const { open, message, severity, showSnackbar, handleClose } = useSnackbar();
 
   const [formData, setFormData] = useState<CollaboratorForm>({
-    id: "",
     name: "",
     email: "",
     department: "",
