@@ -5,6 +5,9 @@ import {
   doc,
   getDoc,
   updateDoc,
+  query,
+  where,
+  getDocs,
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import type { CollaboratorForm } from "../pages/NewCollaborator";
@@ -16,6 +19,33 @@ export type CreateCollaboratorResult =
 export type UpdateCollaboratorResult =
   | { success: true }
   | { success: false; error: "UNKNOWN_ERROR" };
+
+export type CheckEmailResult =
+  | { success: true; exists: boolean }
+  | { success: false; error: "UNKNOWN_ERROR" };
+
+export async function checkEmailExists(
+  email: string,
+): Promise<CheckEmailResult> {
+  try {
+    const q = query(
+      collection(db, "collaborators"),
+      where("email", "==", email),
+    );
+
+    const snapshot = await getDocs(q);
+
+    return {
+      success: true,
+      exists: !snapshot.empty,
+    };
+  } catch {
+    return {
+      success: false,
+      error: "UNKNOWN_ERROR",
+    };
+  }
+}
 
 export async function createCollaborator(
   data: CollaboratorForm,

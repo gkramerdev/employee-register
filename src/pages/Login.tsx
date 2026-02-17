@@ -106,7 +106,7 @@ export default function Login() {
         open={!!error}
         autoHideDuration={3000}
         onClose={() => setError(null)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
       >
         <Alert severity="error" onClose={() => setError(null)}>
           {error}

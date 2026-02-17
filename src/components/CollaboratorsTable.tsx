@@ -9,9 +9,10 @@ import {
   TableRow,
   TableContainer,
   Paper,
-  TablePagination,
   TableSortLabel,
   IconButton,
+  Pagination,
+  Typography,
 } from "@mui/material";
 import { useState } from "react";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -39,21 +40,10 @@ export default function CollaboratorsTable({
   onDeactivate,
 }: Props) {
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage] = useState(5);
 
   const [order, setOrder] = useState<Order>("asc");
   const [orderBy, setOrderBy] = useState<keyof Collaborator>("name");
-
-  const handleChangePage = (_: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
 
   function handleSort(property: keyof Collaborator) {
     const isAsc = orderBy === property && order === "asc";
@@ -148,7 +138,11 @@ export default function CollaboratorsTable({
 
                 <TableCell align="right">
                   <Box
-                    sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}
+                    sx={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      gap: 1,
+                    }}
                   >
                     <IconButton
                       size="small"
@@ -196,15 +190,28 @@ export default function CollaboratorsTable({
         </Table>
       </TableContainer>
 
-      <TablePagination
-        component="div"
-        count={data.length}
-        page={page}
-        onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        rowsPerPageOptions={[5, 10, 25]}
-      />
+      {/* PAGINAÇÃO MODERNA */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          px: 2,
+          py: 2,
+        }}
+      >
+        <Typography variant="body2" sx={{ color: "#6b7280" }}>
+          {data.length} colaboradores
+        </Typography>
+
+        <Pagination
+          count={Math.ceil(data.length / rowsPerPage)}
+          page={page + 1}
+          onChange={(_, value) => setPage(value - 1)}
+          shape="rounded"
+          color="primary"
+        />
+      </Box>
     </Paper>
   );
 }

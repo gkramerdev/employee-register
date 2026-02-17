@@ -6,16 +6,20 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
+import {
+  createCollaborator,
+  checkEmailExists,
+} from "../services/collaboratorService";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CollaboratorStepper from "../components/collaborator/CollaboratorStepper";
 import StepBasicInfo from "../components/collaborator/StepBasicInfo";
 import StepProfessionalInfo from "../components/collaborator/StepProfessionalInfo";
-import { createCollaborator } from "../services/collaboratorService";
 import { CircularProgress } from "@mui/material";
 import { useSnackbar } from "../hooks/useSnackbar";
 
 export interface CollaboratorForm {
+  id: string;
   name: string;
   email: string;
   department: string;
@@ -32,6 +36,7 @@ export default function NewCollaborator() {
   const { open, message, severity, showSnackbar, handleClose } = useSnackbar();
 
   const [formData, setFormData] = useState<CollaboratorForm>({
+    id: "",
     name: "",
     email: "",
     department: "",
@@ -74,6 +79,20 @@ export default function NewCollaborator() {
     if (!isStepValid() || loading) return;
 
     setLoading(true);
+
+    const emailCheck = await checkEmailExists(formData.email);
+
+    if (!emailCheck.success) {
+      setLoading(false);
+      showSnackbar("Erro ao validar e-mail.", "error");
+      return;
+    }
+
+    if (emailCheck.exists) {
+      setLoading(false);
+      showSnackbar("O e-mail já está em uso por outro colaborador.", "error");
+      return;
+    }
 
     const result = await createCollaborator(formData);
 
