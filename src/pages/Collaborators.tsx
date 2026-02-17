@@ -14,6 +14,7 @@ import { db } from "../firebaseConfig";
 import CollaboratorsTable from "../components/CollaboratorsTable";
 import { deleteCollaborator } from "../services/collaboratorService";
 import DeactivateCollaboratorDialog from "../components/collaborator/DeactivateCollaboratorDialog";
+import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 
 interface Collaborator {
   id: string;
@@ -82,9 +83,14 @@ export default function Collaborators() {
     );
   }, [data, search]);
 
-  function handleOpenDialog(id: string) {
-    setSelectedId(id);
-    setOpenDialog(true);
+  function handleToggleStatus(id: string, status: "active" | "inactive") {
+    if (status === "active") {
+      setSelectedId(id);
+      setOpenDialog(true);
+      return;
+    }
+
+    handleConfirmDelete(id, status);
   }
 
   function handleCloseDialog() {
@@ -92,27 +98,32 @@ export default function Collaborators() {
     setOpenDialog(false);
   }
 
-  async function handleConfirmDelete() {
-    if (!selectedId) return;
-
+  async function handleConfirmDelete(
+    id: string,
+    status: "active" | "inactive",
+  ) {
     setDeleting(true);
 
-    const result = await deleteCollaborator(selectedId);
+    const result = await deleteCollaborator(id, status);
 
     setDeleting(false);
-    handleCloseDialog();
+    setOpenDialog(false);
+    setSelectedId(null);
 
     if (result.success) {
       setSnackbar({
         open: true,
-        message: "Colaborador inativado com sucesso!",
         severity: "success",
+        message:
+          status === "active"
+            ? "Colaborador inativado com sucesso!"
+            : "Colaborador ativado com sucesso!",
       });
     } else {
       setSnackbar({
         open: true,
-        message: "Erro ao inativar colaborador.",
         severity: "error",
+        message: "Erro ao atualizar status do colaborador.",
       });
     }
   }
@@ -124,52 +135,69 @@ export default function Collaborators() {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          mb: 3,
+          mb: 4,
         }}
       >
-        <Typography variant="h5" fontWeight={600}>
+        <Typography variant="h5" fontWeight={600} sx={{ letterSpacing: 0.2 }}>
           Colaboradores
         </Typography>
 
         <Button
           variant="contained"
-          color="success"
+          sx={{
+            backgroundColor: "#00E676",
+            color: "#ffffff",
+            textTransform: "none",
+            borderRadius: 2,
+            px: 3,
+          }}
           onClick={() => navigate("/collaborators/new")}
         >
-          Novo Colaborador
+          Novo colaborador
         </Button>
       </Box>
+      <Box sx={{ position: "relative", mb: 2 }}>
+        <TextField
+          placeholder="Buscar colaborador"
+          size="small"
+          fullWidth
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
 
-      <TextField
-        label="Buscar colaborador"
-        variant="outlined"
-        fullWidth
-        sx={{ mb: 3 }}
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-
+        <SearchOutlinedIcon
+          sx={{
+            position: "absolute",
+            right: 10,
+            top: "50%",
+            transform: "translateY(-50%)",
+            color: "#9ca3af",
+            fontSize: 20,
+            pointerEvents: "none",
+          }}
+        />
+      </Box>
       {loadingList ? (
         <Box
           display="flex"
           justifyContent="center"
           alignItems="center"
-          minHeight={200}
+          minHeight={240}
         >
-          <CircularProgress />
+          <CircularProgress size={28} />
         </Box>
       ) : (
         <CollaboratorsTable
           data={filteredData}
           onEdit={(id) => navigate(`/collaborators/${id}`)}
-          onDeactivate={handleOpenDialog}
+          onDeactivate={handleToggleStatus}
         />
       )}
 
       <DeactivateCollaboratorDialog
         open={openDialog}
         onClose={handleCloseDialog}
-        onConfirm={handleConfirmDelete}
+        onConfirm={() => handleConfirmDelete(selectedId!, "active")}
         loading={deleting}
       />
 

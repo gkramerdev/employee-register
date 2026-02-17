@@ -10,10 +10,12 @@ import {
   TableContainer,
   Paper,
   TablePagination,
-  Button,
   TableSortLabel,
+  IconButton,
 } from "@mui/material";
 import { useState } from "react";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import PowerSettingsNewOutlinedIcon from "@mui/icons-material/PowerSettingsNewOutlined";
 
 interface Collaborator {
   id: string;
@@ -26,7 +28,7 @@ interface Collaborator {
 interface Props {
   data: Collaborator[];
   onEdit: (id: string) => void;
-  onDeactivate: (id: string) => void;
+  onDeactivate: (id: string, status: "active" | "inactive") => void;
 }
 
 type Order = "asc" | "desc";
@@ -112,7 +114,7 @@ export default function CollaboratorsTable({
               </TableCell>
 
               <TableCell>Status</TableCell>
-              <TableCell>Ações</TableCell>
+              <TableCell align="right">Ações</TableCell>
             </TableRow>
           </TableHead>
 
@@ -132,23 +134,61 @@ export default function CollaboratorsTable({
                 <TableCell>
                   <Chip
                     label={row.status === "active" ? "Ativo" : "Inativo"}
-                    color={row.status === "active" ? "success" : "default"}
                     size="small"
+                    sx={{
+                      fontWeight: 500,
+                      backgroundColor:
+                        row.status === "active"
+                          ? "rgba(0, 230, 118, 0.15)"
+                          : "rgba(239, 68, 68, 0.12)",
+                      color: row.status === "active" ? "#00C853" : "#ef4444",
+                    }}
                   />
                 </TableCell>
 
-                <TableCell>
-                  <Button size="small" onClick={() => onEdit(row.id)}>
-                    Editar
-                  </Button>
-                  <Button
-                    size="small"
-                    color="error"
-                    disabled={row.status === "inactive"}
-                    onClick={() => onDeactivate(row.id)}
+                <TableCell align="right">
+                  <Box
+                    sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}
                   >
-                    Inativar
-                  </Button>
+                    <IconButton
+                      size="small"
+                      onClick={() => onEdit(row.id)}
+                      title="Editar"
+                      sx={{
+                        border: "1px solid #e5e7eb",
+                        borderRadius: 1,
+                        width: 32,
+                        height: 32,
+                        color: "#374151",
+                        "&:hover": {
+                          backgroundColor: "#f9fafb",
+                        },
+                      }}
+                    >
+                      <EditOutlinedIcon fontSize="small" />
+                    </IconButton>
+
+                    <IconButton
+                      size="small"
+                      onClick={() => onDeactivate(row.id, row.status)}
+                      title={row.status === "active" ? "Inativar" : "Ativar"}
+                      sx={{
+                        border: "1px solid #e5e7eb",
+                        borderRadius: 1,
+                        width: 32,
+                        height: 32,
+                        color: row.status === "active" ? "#ef4444" : "#00C853",
+                        "&:hover": {
+                          backgroundColor:
+                            row.status === "active"
+                              ? "rgba(239, 68, 68, 0.1)"
+                              : "rgba(0, 230, 118, 0.12)",
+                        },
+                      }}
+                    >
+                      <PowerSettingsNewOutlinedIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
                 </TableCell>
               </TableRow>
             ))}

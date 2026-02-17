@@ -1,4 +1,4 @@
-import { Alert, Box, Button, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, TextField, CircularProgress } from "@mui/material";
 import { useState } from "react";
 
 interface LoginFormValues {
@@ -26,7 +26,6 @@ export function LoginForm({ onSubmit, isLoading = false }: LoginFormProps) {
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    //TODO TOAST
     if (!values.email || !values.password) {
       setError("Email e senha são obrigatórios");
       return;
@@ -43,31 +42,27 @@ export function LoginForm({ onSubmit, isLoading = false }: LoginFormProps) {
       sx={{
         display: "flex",
         flexDirection: "column",
-        gap: 2,
-        width: "100%",
+        gap: 2.5,
       }}
     >
-      <Typography variant="h5" align="center">
-        Login
-      </Typography>
-
       <TextField
         label="Email"
         name="email"
+        type="email"
+        size="small"
         value={values.email}
         onChange={handleChange}
         fullWidth
-        required
       />
 
       <TextField
         label="Senha"
         name="password"
         type="password"
+        size="small"
         value={values.password}
         onChange={handleChange}
         fullWidth
-        required
       />
 
       {error && <Alert severity="error">{error}</Alert>}
@@ -75,10 +70,24 @@ export function LoginForm({ onSubmit, isLoading = false }: LoginFormProps) {
       <Button
         type="submit"
         variant="contained"
-        color="primary"
         disabled={isLoading}
+        sx={{
+          backgroundColor: "#00E676",
+          color: "#ffffff",
+          fontWeight: 600,
+          textTransform: "none",
+          height: 48,
+          borderRadius: 2,
+          "&:hover": {
+            backgroundColor: "#00C853",
+          },
+        }}
       >
-        {isLoading ? "Entrando..." : "Entrar"}
+        {isLoading ? (
+          <CircularProgress size={22} sx={{ color: "#ffffff" }} />
+        ) : (
+          "Entrar"
+        )}
       </Button>
     </Box>
   );

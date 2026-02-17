@@ -63,12 +63,18 @@ export async function updateCollaborator(
     }));
 }
 
-export async function deleteCollaborator(id: string) {
+export async function deleteCollaborator(
+  id: string,
+  currentStatus: "active" | "inactive",
+) {
   if (!id) {
     return { success: false, error: "UNKNOWN_ERROR" };
   }
+
+  const newStatus = currentStatus === "active" ? "inactive" : "active";
+
   return updateDoc(doc(db, "collaborators", id), {
-    status: "inactive",
+    status: newStatus,
     updatedAt: serverTimestamp(),
   })
     .then(() => ({ success: true as const }))

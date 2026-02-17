@@ -120,6 +120,7 @@ export default function NewCollaborator() {
               display: "flex",
               justifyContent: "space-between",
               mt: 6,
+              alignItems: "flex-start",
             }}
           >
             <Button disabled={activeStep === 0 || loading} onClick={handleBack}>
@@ -129,6 +130,7 @@ export default function NewCollaborator() {
             <Button
               variant="contained"
               color="success"
+              sx={{ backgroundColor: "#00E676" }}
               disabled={!isStepValid() || loading}
               startIcon={
                 loading ? <CircularProgress size={18} color="inherit" /> : null

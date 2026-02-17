@@ -1,4 +1,5 @@
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
+import welcome from "../assets/welcome.png";
 
 export default function Home() {
   return (
@@ -12,13 +13,7 @@ export default function Home() {
         color: "#6b7280",
       }}
     >
-      <Typography variant="h5" fontWeight={500} gutterBottom>
-        Bem-vindo ao sistema de cadastro da Flugo
-      </Typography>
-
-      <Typography variant="body1">
-        Selecione uma opção no menu ao lado para começar
-      </Typography>
+      <img src={welcome} alt="Welcome" style={{ maxWidth: "40%" }} />
     </Box>
   );
 }

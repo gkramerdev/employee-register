@@ -144,6 +144,7 @@ export default function EditCollaborator() {
               display: "flex",
               justifyContent: "space-between",
               mt: 6,
+              alignItems: "flex-start",
             }}
           >
             <Button disabled={activeStep === 0 || loading} onClick={handleBack}>
@@ -152,6 +153,7 @@ export default function EditCollaborator() {
 
             <Button
               variant="contained"
+              sx={{ backgroundColor: "#00E676" }}
               color="success"
               disabled={!isStepValid() || loading}
               onClick={activeStep === TOTAL_STEPS - 1 ? handleSave : handleNext}
