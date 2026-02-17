@@ -1,73 +1,191 @@
-# React + TypeScript + Vite
+# Flugo – Sistema de Cadastro de Colaboradores
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicação desenvolvida como parte de um **Desafio**, com foco na criação de um sistema moderno de cadastro e gerenciamento de colaboradores, utilizando formulário multi-step, persistência em tempo real e uma interface alinhada a um produto real.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 📋 Índice
 
-## React Compiler
+- [Tecnologias Utilizadas](#-tecnologias-utilizadas)
+- [Funcionalidades](#-funcionalidades)
+- [Formulário Multi-step](#-formulário-multi-step)
+- [Credenciais de Teste](#-credenciais-de-teste)
+- [Configuração do Firebase](#-configuração-do-firebase)
+- [Instalação e Execução](#️-instalação-e-execução)
+- [UI/UX](#-uiux)
+- [Arquitetura](#️-arquitetura)
+- [Acesso Online](#-acesso-online)
+- [Observações Finais](#-observações-finais)
+- [Autor](#-autor)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🧩 Tecnologias Utilizadas
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **[React](https://reactjs.org/)** com **[Vite](https://vitejs.dev/)**
+- **[TypeScript](https://www.typescriptlang.org/)**
+- **[Material UI (MUI)](https://mui.com/)**
+- **[Firebase](https://firebase.google.com/)**
+  - **Authentication** - Autenticação de usuários
+  - **Firestore** - Banco de dados em tempo real
+- **[Yarn](https://yarnpkg.com/)**
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## ✨ Funcionalidades
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- ✅ Autenticação de usuários
+- ✅ Rotas protegidas
+- ✅ Gerenciamento de colaboradores (CRUD completo)
+  - Criar colaborador (formulário multi-step)
+  - Editar colaborador
+  - Ativar / Inativar colaborador (soft delete)
+- ✅ Validação de e-mail único (não permite duplicidade de colaboradores)
+- ✅ Sincronização em tempo real com Firestore (`onSnapshot`)
+- ✅ Tema global customizado com identidade visual
+- ✅ Feedback visual (loading e snackbar)
+- ✅ Sidebar com navegação e estado ativo
+- ✅ Tela inicial com estado vazio (hero)
+
+---
+
+## 🧭 Formulário Multi-step
+
+O cadastro de colaboradores foi implementado utilizando um **formulário multi-step**, conforme solicitado no desafio, utilizando o **Stepper do Material UI**.
+
+### Etapas do cadastro:
+
+#### 1️⃣ Informações Básicas
+
+- Nome
+- E-mail
+- Status (ativo/inativo)
+
+#### 2️⃣ Informações Profissionais
+
+- Departamento
+
+### Regras aplicadas:
+
+- ✔️ Todos os campos são obrigatórios
+- ✔️ Validação por etapa
+- ✔️ Não é possível avançar sem preencher corretamente
+- ✔️ Feedback visual entre as etapas
+
+---
+
+## 🔐 Credenciais de Teste
+
+Para facilitar a avaliação, foi criado um usuário de teste que permite acessar e testar todas as funcionalidades do sistema (CRUD completo).
+
+```
+Email: teste@flugo.com
+Senha: @Flugo123
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🔥 Configuração do Firebase
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Para rodar o projeto localmente, crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+
+```env
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
 ```
+
+> ⚠️ **Nota de Segurança:** As credenciais reais estão configuradas apenas no ambiente de produção (Vercel). Para rodar localmente, utilize suas próprias credenciais do Firebase.
+
+---
+
+## ⚙️ Instalação e Execução
+
+### Pré-requisitos
+
+- Node.js 18+ instalado
+- Yarn instalado
+
+### 1️⃣ Clonar o repositório
+
+```bash
+git clone https://github.com/gkramerdev/employee-register.git
+cd employee-register
+```
+
+### 2️⃣ Instalar as dependências
+
+```bash
+yarn install
+```
+
+### 3️⃣ Configurar variáveis de ambiente
+
+Crie o arquivo `.env` conforme indicado na [seção de configuração do Firebase](#-configuração-do-firebase).
+
+### 4️⃣ Iniciar o servidor de desenvolvimento
+
+```bash
+yarn dev
+```
+
+A aplicação estará disponível em:
+
+```
+http://localhost:5173
+```
+
+---
+
+## 🎨 UI/UX
+
+- 🎯 Interface construída com Material UI
+- 🎨 Tema global customizado com identidade visual da aplicação
+- 📱 Layout limpo, moderno e responsivo
+- ✨ Componentes alinhados ao protótipo fornecido
+- 💡 Experiência focada em clareza, usabilidade e feedback visual
+
+---
+
+## 🏗️ Arquitetura
+
+O projeto foi estruturado seguindo boas práticas de organização:
+
+- `pages/` – Telas principais da aplicação
+- `components/` – Componentes reutilizáveis
+- `services/` – Camada de acesso ao Firebase (Firestore)
+- `hooks/` – Hooks customizados (ex: useSnackbar)
+- `routes/` – Configuração de rotas protegidas
+- `theme/` – Configuração de tema global do MUI
+
+A separação por responsabilidades facilita manutenção, escalabilidade e legibilidade do código.
+
+---
+
+## 🌐 Acesso Online
+
+**Aplicação disponível em:** [https://flugo-register-employee.vercel.app](https://flugo-register-employee.vercel.app)
+
+> 💡 Para testar rapidamente, acesse o link acima. Para rodar localmente e avaliar o código, siga as instruções de instalação.
+
+---
+
+## 📌 Observações Finais
+
+- 📝 Este projeto foi desenvolvido exclusivamente para fins de avaliação técnica
+- 🏗️ O foco foi em arquitetura limpa, UX consistente e comportamento próximo de um produto real
+- 🗑️ O sistema utiliza **soft delete**, permitindo ativar e inativar colaboradores sem remoção definitiva do banco de dados
+- ⚡ Sincronização em tempo real garante que mudanças sejam refletidas instantaneamente
+- 🔒 Rotas protegidas garantem acesso apenas a usuários autenticados
+
+---
+
+## 👨‍💻 Autor
+
+**Desenvolvido por Giancarlo Kramer**
+
+---
